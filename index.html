@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streak Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: #2c2c2c;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #f0f0f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #444;
+        }
+
+        th {
+            background-color: #333;
+            color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+
+        tr:hover {
+            background-color: #444;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SuperRare Warpcast Streaks</h1>
+        <table id="streak-table">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Streak Count</th>
+                    <th>Username</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch and display data from JSON
+        fetch('current_streaks_superrare.json')
+            .then(response => response.json())
+            .then(data => {
+                // Populate the table with sorted data
+                const tableBody = document.querySelector('#streak-table tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach((streak) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="highlight">${streak.streak_count}</td>
+                        <td>${streak.username}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error loading JSON data:', error));
+
+        // Function to sort the table by column
+        function sortTable(columnIndex) {
+            const table = document.getElementById('streak-table');
+            const rows = Array.from(table.rows).slice(1);
+            const isAscending = table.dataset.sortOrder === 'asc';
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].textContent;
+                const cellB = rowB.cells[columnIndex].textContent;
+                const comparison = columnIndex === 0 ? parseInt(cellA) - parseInt(cellB) : cellA.localeCompare(cellB);
+
+                return isAscending ? comparison : -comparison;
+            });
+
+            rows.forEach((row) => table.appendChild(row));
+            table.dataset.sortOrder = isAscending ? 'desc' : 'asc';
+        }
+    </script>
+</body>
+</html>
